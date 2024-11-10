@@ -1,0 +1,11 @@
+# Node.js dependencies
+app/node_modules/
+
+# Deployment artifacts
+app/app.zip
+
+# Terraform-related files
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.lock.hcl

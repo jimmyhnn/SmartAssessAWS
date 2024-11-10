@@ -1,26 +1,43 @@
 provider "aws" {
-  region = "us-west-2" # Replace with your preferred region
+  region = "us-west-2"
 }
 
-# Create Elastic Beanstalk application
+# Elastic Beanstalk Application
 resource "aws_elastic_beanstalk_application" "app" {
-  name = "sample-nodejs-app"
+  name        = "simpleapp"
+  description = "A sample Node.js application"
 }
 
-# Create Elastic Beanstalk application version
+# Elastic Beanstalk Application Version
 resource "aws_elastic_beanstalk_application_version" "app_version" {
-  name        = "v1"                           # Version label
+  name        = "v1"
   application = aws_elastic_beanstalk_application.app.name
-  bucket      = aws_s3_bucket.logs.id          # Reference your S3 bucket
-  key         = "app.zip"                      # Path to the uploaded app in S3
+  bucket      = "sample-app-bucket-pvg0vd"
+  key         = "app.zip"
 }
 
-# Create Elastic Beanstalk environment
+# Elastic Beanstalk Environment
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "sample-nodejs-env"
   application         = aws_elastic_beanstalk_application.app.name
   version_label       = aws_elastic_beanstalk_application_version.app_version.name
-  solution_stack_name = "64bit Amazon Linux 2 v3.3.2 running Node.js 14"
+  solution_stack_name = "64bit Amazon Linux 2 v5.9.8 running Node.js 18"
+
+  wait_for_ready_timeout = "30m"
+
+  # Attach the IAM Instance Profile
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = "Devops-Assess" # Ensure this is the name of the instance profile
+  }
+
+  # Attach the Service Role
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "ServiceRole"
+    value     = "arn:aws:iam::160885247798:role/Devops-Assess"
+  }
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
